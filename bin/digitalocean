@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+
+/**
+ * Dependencies
+ */
+
+var fs = require('fs')
+var DigitalOcean = require('../lib/digitalocean')
+
+/**
+ * Environment
+ */
+
+DigitalOcean.token = process.env.DO_TOKEN
+process.env.ANSIBLE_HOST_KEY_CHECKING = 'False'
+
+/**
+ * addToHosts
+ */
+
+function addToHosts (name, ip, user, privateKeyPath, done) {
+  var host = name
+  host += ' ansible_ssh_host=' + ip
+  host += ' ansible_ssh_user=' + user
+  host += ' ansible_ssh_private_key_file=' + privateKeyPath
+  fs.writeFile('./hosts', host, function (err) {
+    if (err) { return done(err) }
+    done(null)
+  })
+}
+
+/**
+ * CREATE THE DROPLET
+ */
+
+DigitalOcean.promptDropletOptions(function (answers) {
+  DigitalOcean.createDroplet({
+    name: answers.name,
+    region: answers.region,
+    size: answers.size,
+    image: 'ubuntu-14-04-x64',
+    ssh_keys: answers.sshKeys,
+    backups: false,
+    ipv6: false,
+    user_data: null,
+    private_networking: null
+
+  }, function (err, droplet) {
+    if (err) {
+      console.log(err)
+      process.exit()
+    }
+
+    var id = droplet.id
+    var name = droplet.name
+
+    console.log('Creating new droplet %s (%s)\n', name, id)
+
+    DigitalOcean.waitForDroplet(id, function (err, ip) {
+      if (err) {
+        console.log(err)
+        process.exit()
+      }
+
+      addToHosts(name, ip, 'root', process.env.HOME + '/.ssh/id_rsa', function (err) {
+        console.log('\nDroplet "%s" (%s) created.\nLog in with `ssh root@%s`\n', name, id, ip)
+      })
+    })
+  })
+})

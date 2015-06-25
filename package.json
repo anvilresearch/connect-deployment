@@ -1,0 +1,22 @@
+{
+  "name": "connect-deployment",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Production deployment support for Anvil Connect",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anvilresearch/connect-deployment.git"
+  },
+  "author": "Anvil Research, Inc.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anvilresearch/connect-deployment/issues"
+  },
+  "homepage": "https://github.com/anvilresearch/connect-deployment",
+  "dependencies": {
+    "async": "^1.2.1",
+    "inquirer": "^0.8.5",
+    "progress": "^1.1.8",
+    "superagent": "^1.2.0"
+  }
+}
